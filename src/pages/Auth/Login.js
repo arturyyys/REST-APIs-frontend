@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+
 import Input from "../../components/Form/Input/Input";
 import Button from "../../components/Button/Button";
 import { required, length, email } from "../../util/validators";
@@ -23,25 +24,24 @@ class Login extends Component {
     },
   };
 
-  // Handle input changes and validate
   inputChangeHandler = (input, value) => {
     this.setState((prevState) => {
+      let isValid = true;
+      for (const validator of prevState.loginForm[input].validators) {
+        isValid = isValid && validator(value);
+      }
       const updatedForm = {
         ...prevState.loginForm,
         [input]: {
           ...prevState.loginForm[input],
+          valid: isValid,
           value: value,
-          valid: this.validateInput(
-            value,
-            prevState.loginForm[input].validators
-          ),
         },
       };
-
-      const formIsValid = Object.values(updatedForm).every(
-        (input) => input.valid
-      );
-
+      let formIsValid = true;
+      for (const inputName in updatedForm) {
+        formIsValid = formIsValid && updatedForm[inputName].valid;
+      }
       return {
         loginForm: updatedForm,
         formIsValid: formIsValid,
@@ -49,51 +49,41 @@ class Login extends Component {
     });
   };
 
-  // Validate a single input
-  validateInput(value, validators) {
-    return validators.every((validator) => validator(value));
-  }
-
-  // Mark input as touched
   inputBlurHandler = (input) => {
-    this.setState((prevState) => ({
-      loginForm: {
-        ...prevState.loginForm,
-        [input]: {
-          ...prevState.loginForm[input],
-          touched: true,
+    this.setState((prevState) => {
+      return {
+        loginForm: {
+          ...prevState.loginForm,
+          [input]: {
+            ...prevState.loginForm[input],
+            touched: true,
+          },
         },
-      },
-    }));
-  };
-
-  // Handle form submission
-  handleSubmit = (event) => {
-    event.preventDefault();
-    if (this.state.formIsValid) {
-      this.props.onLogin(event, {
-        email: this.state.loginForm.email.value,
-        password: this.state.loginForm.password.value,
-      });
-    } else {
-      console.log("Form is invalid!"); // You might want to show an error message instead
-    }
+      };
+    });
   };
 
   render() {
     return (
       <Auth>
-        <form onSubmit={this.handleSubmit}>
+        <form
+          onSubmit={(e) =>
+            this.props.onLogin(e, {
+              email: this.state.loginForm.email.value,
+              password: this.state.loginForm.password.value,
+            })
+          }
+        >
           <Input
             id="email"
             label="Your E-Mail"
             type="email"
             control="input"
             onChange={this.inputChangeHandler}
-            onBlur={() => this.inputBlurHandler("email")}
-            value={this.state.loginForm.email.value}
-            valid={this.state.loginForm.email.valid}
-            touched={this.state.loginForm.email.touched}
+            onBlur={this.inputBlurHandler.bind(this, "email")}
+            value={this.state.loginForm["email"].value}
+            valid={this.state.loginForm["email"].valid}
+            touched={this.state.loginForm["email"].touched}
           />
           <Input
             id="password"
@@ -101,10 +91,10 @@ class Login extends Component {
             type="password"
             control="input"
             onChange={this.inputChangeHandler}
-            onBlur={() => this.inputBlurHandler("password")}
-            value={this.state.loginForm.password.value}
-            valid={this.state.loginForm.password.valid}
-            touched={this.state.loginForm.password.touched}
+            onBlur={this.inputBlurHandler.bind(this, "password")}
+            value={this.state.loginForm["password"].value}
+            valid={this.state.loginForm["password"].valid}
+            touched={this.state.loginForm["password"].touched}
           />
           <Button design="raised" type="submit" loading={this.props.loading}>
             Login

@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom"; // Updated imports
 import Layout from "./components/Layout/Layout";
 import Backdrop from "./components/Backdrop/Backdrop";
 import Toolbar from "./components/Toolbar/Toolbar";
@@ -16,7 +16,7 @@ class App extends Component {
   state = {
     showBackdrop: false,
     showMobileNav: false,
-    isAuth: false,
+    isAuth: true,
     token: null,
     userId: null,
     authLoading: false,
@@ -24,10 +24,6 @@ class App extends Component {
   };
 
   componentDidMount() {
-    this.checkAuthStatus();
-  }
-
-  checkAuthStatus = () => {
     const token = localStorage.getItem("token");
     const expiryDate = localStorage.getItem("expiryDate");
     if (!token || !expiryDate) {
@@ -42,7 +38,7 @@ class App extends Component {
       new Date(expiryDate).getTime() - new Date().getTime();
     this.setState({ isAuth: true, token: token, userId: userId });
     this.setAutoLogout(remainingMilliseconds);
-  };
+  }
 
   mobileNavHandler = (isOpen) => {
     this.setState({ showMobileNav: isOpen, showBackdrop: isOpen });
@@ -53,7 +49,7 @@ class App extends Component {
   };
 
   logoutHandler = () => {
-    this.setState({ isAuth: false, token: null, userId: null });
+    this.setState({ isAuth: false, token: null });
     localStorage.removeItem("token");
     localStorage.removeItem("expiryDate");
     localStorage.removeItem("userId");
@@ -62,30 +58,33 @@ class App extends Component {
   loginHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-
     fetch("URL")
       .then((res) => {
-        if (!res.ok) {
-          // Handle various response errors
-          if (res.status === 422) {
-            throw new Error("Validation failed.");
-          }
+        if (res.status === 422) {
+          throw new Error("Validation failed.");
+        }
+        if (res.status !== 200 && res.status !== 201) {
+          console.log("Error!");
           throw new Error("Could not authenticate you!");
         }
-        return res.json(); // Assuming the response is JSON
+        return res.json();
       })
       .then((resData) => {
+        console.log(resData);
         this.setState({
           isAuth: true,
           token: resData.token,
-          userId: resData.userId,
           authLoading: false,
+          userId: resData.userId,
         });
         localStorage.setItem("token", resData.token);
         localStorage.setItem("userId", resData.userId);
-        const expiryDate = new Date(new Date().getTime() + 60 * 60 * 1000);
+        const remainingMilliseconds = 60 * 60 * 1000;
+        const expiryDate = new Date(
+          new Date().getTime() + remainingMilliseconds
+        );
         localStorage.setItem("expiryDate", expiryDate.toISOString());
-        this.setAutoLogout(60 * 60 * 1000);
+        this.setAutoLogout(remainingMilliseconds);
       })
       .catch((err) => {
         console.log(err);
@@ -100,23 +99,24 @@ class App extends Component {
   signupHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-
     fetch("URL")
       .then((res) => {
-        if (!res.ok) {
-          if (res.status === 422) {
-            throw new Error(
-              "Validation failed. Make sure the email address isn't used yet!"
-            );
-          }
+        if (res.status === 422) {
+          throw new Error(
+            "Validation failed. Make sure the email address isn't used yet!"
+          );
+        }
+        if (res.status !== 200 && res.status !== 201) {
+          console.log("Error!");
           throw new Error("Creating a user failed!");
         }
-        return res.json(); // Assuming the response is JSON
+        return res.json();
       })
       .then((resData) => {
         console.log(resData);
         this.setState({ isAuth: false, authLoading: false });
-        this.props.navigate("/"); // Assuming you have a way to navigate
+        // Redirect to home page, can use history hook instead if needed
+        this.props.navigate("/");
       })
       .catch((err) => {
         console.log(err);
@@ -129,7 +129,9 @@ class App extends Component {
   };
 
   setAutoLogout = (milliseconds) => {
-    setTimeout(this.logoutHandler, milliseconds);
+    setTimeout(() => {
+      this.logoutHandler();
+    }, milliseconds);
   };
 
   errorHandler = () => {
@@ -186,10 +188,9 @@ class App extends Component {
 
     return (
       <Fragment>
-        <Backdrop
-          open={this.state.showBackdrop}
-          onClick={this.backdropClickHandler}
-        />
+        {this.state.showBackdrop && (
+          <Backdrop onClick={this.backdropClickHandler} />
+        )}
         <ErrorHandler error={this.state.error} onHandle={this.errorHandler} />
         <Layout
           header={
@@ -204,6 +205,7 @@ class App extends Component {
           mobileNav={
             <MobileNavigation
               open={this.state.showMobileNav}
+              mobile
               onChooseItem={this.mobileNavHandler.bind(this, false)}
               onLogout={this.logoutHandler}
               isAuth={this.state.isAuth}
@@ -216,4 +218,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default App; // Remove withRouter since it's no longer used
