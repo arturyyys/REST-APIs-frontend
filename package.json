@@ -6,11 +6,11 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.27.0",
-    "react-scripts": "^3.0.1"
+    "react-scripts": "^5.0.1"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts --openssl-legacy-provider build",
+    "start": "cross-env NODE_OPTIONS=--trace-deprecation react-scripts start",
+    "build": "cross-env NODE_OPTIONS=--trace-deprecation react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -25,6 +25,7 @@
   ],
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@babel/plugin-transform-private-property-in-object": "^7.25.8"
+    "@babel/plugin-transform-private-property-in-object": "^7.25.8",
+    "cross-env": "^7.0.3"
   }
 }

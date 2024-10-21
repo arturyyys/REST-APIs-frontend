@@ -1,12 +1,13 @@
 import React, { Fragment } from "react";
-
 import Backdrop from "../Backdrop/Backdrop";
 import Modal from "../Modal/Modal";
 
 // Renders an error modal and backdrop when an error occurs
-const errorHandler = (props) => (
+const ErrorHandler = (props) => (
   <Fragment>
-    {props.error && <Backdrop onClick={props.onHandle} />}
+    {props.error && (
+      <Backdrop onClick={props.onHandle} open={true} /> // Pass `open` prop correctly
+    )}
     {props.error && (
       <Modal
         title="An Error Occurred"
@@ -20,4 +21,4 @@ const errorHandler = (props) => (
   </Fragment>
 );
 
-export default errorHandler;
+export default ErrorHandler;

@@ -17,8 +17,8 @@ class SinglePost extends Component {
     // Extracting the postId from the URL params
     const postId = this.props.match.params.postId;
 
-    // Fetching the single post data from the server (URL should be replaced with actual API)
-    fetch("URL")
+    // Fetching the single post data from the server using the postId
+    fetch(`https://your-api-url.com/posts/${postId}`) // Replace with your actual API URL
       .then((res) => {
         // If the response status is not 200, an error is thrown
         if (res.status !== 200) {
@@ -32,6 +32,7 @@ class SinglePost extends Component {
           title: resData.post.title,
           author: resData.post.creator.name,
           date: new Date(resData.post.createdAt).toLocaleDateString("en-US"), // Formatting the date
+          image: resData.post.image, // Assuming the image URL is in the response
           content: resData.post.content,
         });
       })
