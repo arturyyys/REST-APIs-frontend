@@ -1,10 +1,10 @@
-import React from "react";
+import React from "react"; // Importing React library
 import { Link } from "react-router-dom"; // Importing the Link component from react-router-dom for navigation
 
 import "./Button.css"; // Importing the CSS file for button styles
 
 // The button functional component. It conditionally renders either a <button> element or a <Link> element based on the props
-const button = (props) =>
+const Button = (props) =>
   // If props.link is falsy, render a regular <button> element
   !props.link ? (
     <button
@@ -17,8 +17,8 @@ const button = (props) =>
       disabled={props.disabled || props.loading} // Disables the button if either 'disabled' or 'loading' is true
       type={props.type} // Setting the button type (e.g., 'submit', 'button', etc.), passed as a prop
     >
-      {props.loading ? "Loading..." : props.children} // Display 'Loading...'
-      text if loading is true, otherwise display the button's children content
+      {props.loading ? "Loading..." : props.children}{" "}
+      {/* Display 'Loading...' text if loading is true, otherwise display the button's children content */}
     </button>
   ) : (
     // If props.link is truthy, render a <Link> element instead
@@ -30,9 +30,9 @@ const button = (props) =>
       ].join(" ")} // Joining all the class names into a single string for the className attribute
       to={props.link} // The 'to' prop determines where the Link will navigate when clicked
     >
-      {props.children} // Displaying the button's children content inside the
-      Link
+      {props.children}{" "}
+      {/* Displaying the button's children content inside the Link */}
     </Link>
   );
 
-export default button; // Exporting the button component for use in other parts of the app
+export default Button; // Exporting the button component for use in other parts of the app

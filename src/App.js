@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Route, Switch, Redirect, withRouter } from "react-router-dom";
-
+import { Route, Routes, Navigate } from "react-router-dom"; // Updated imports
 import Layout from "./components/Layout/Layout";
 import Backdrop from "./components/Backdrop/Backdrop";
 import Toolbar from "./components/Toolbar/Toolbar";
@@ -14,7 +13,6 @@ import SignupPage from "./pages/Auth/Signup";
 import "./App.css";
 
 class App extends Component {
-  // Initialize state and check for authentication details in localStorage when the component mounts
   state = {
     showBackdrop: false,
     showMobileNav: false,
@@ -25,7 +23,6 @@ class App extends Component {
     error: null,
   };
 
-  // Check if user is already logged in using stored tokens and set auto logout
   componentDidMount() {
     const token = localStorage.getItem("token");
     const expiryDate = localStorage.getItem("expiryDate");
@@ -43,17 +40,14 @@ class App extends Component {
     this.setAutoLogout(remainingMilliseconds);
   }
 
-  // Open or close the mobile navigation menu
   mobileNavHandler = (isOpen) => {
     this.setState({ showMobileNav: isOpen, showBackdrop: isOpen });
   };
 
-  // Close the backdrop and hide mobile navigation
   backdropClickHandler = () => {
     this.setState({ showBackdrop: false, showMobileNav: false, error: null });
   };
 
-  // Handle user logout and clear authentication tokens from localStorage
   logoutHandler = () => {
     this.setState({ isAuth: false, token: null });
     localStorage.removeItem("token");
@@ -61,7 +55,6 @@ class App extends Component {
     localStorage.removeItem("userId");
   };
 
-  // Handle user login and store authentication tokens in localStorage
   loginHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
@@ -103,7 +96,6 @@ class App extends Component {
       });
   };
 
-  // Handle user signup and redirect to homepage after successful signup
   signupHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
@@ -123,7 +115,8 @@ class App extends Component {
       .then((resData) => {
         console.log(resData);
         this.setState({ isAuth: false, authLoading: false });
-        this.props.history.replace("/");
+        // Redirect to home page, can use history hook instead if needed
+        this.props.navigate("/");
       })
       .catch((err) => {
         console.log(err);
@@ -135,71 +128,64 @@ class App extends Component {
       });
   };
 
-  // Automatically log the user out after a set time (auto-logout)
   setAutoLogout = (milliseconds) => {
     setTimeout(() => {
       this.logoutHandler();
     }, milliseconds);
   };
 
-  // Clear any error messages from state
   errorHandler = () => {
     this.setState({ error: null });
   };
 
-  // Render the application and define different routes based on authentication state
   render() {
     let routes = (
-      <Switch>
+      <Routes>
         <Route
           path="/"
-          exact
-          render={(props) => (
+          element={
             <LoginPage
-              {...props}
               onLogin={this.loginHandler}
               loading={this.state.authLoading}
             />
-          )}
+          }
         />
         <Route
           path="/signup"
-          exact
-          render={(props) => (
+          element={
             <SignupPage
-              {...props}
               onSignup={this.signupHandler}
               loading={this.state.authLoading}
             />
-          )}
+          }
         />
-        <Redirect to="/" />
-      </Switch>
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     );
+
     if (this.state.isAuth) {
       routes = (
-        <Switch>
+        <Routes>
           <Route
             path="/"
-            exact
-            render={(props) => (
+            element={
               <FeedPage userId={this.state.userId} token={this.state.token} />
-            )}
+            }
           />
           <Route
             path="/:postId"
-            render={(props) => (
+            element={
               <SinglePostPage
-                {...props}
                 userId={this.state.userId}
                 token={this.state.token}
               />
-            )}
+            }
           />
-          <Redirect to="/" />
-        </Switch>
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       );
     }
+
     return (
       <Fragment>
         {this.state.showBackdrop && (
@@ -232,4 +218,4 @@ class App extends Component {
   }
 }
 
-export default withRouter(App);
+export default App; // Remove withRouter since it's no longer used
