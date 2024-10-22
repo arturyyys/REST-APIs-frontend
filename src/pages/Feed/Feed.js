@@ -109,8 +109,9 @@ class Feed extends Component {
     let method = "POST"; // Default to creating a new post
 
     if (this.state.editPost) {
-      url = `http://localhost:8080/feed/posts/${this.state.editPost._id}`;
-      method = "PUT"; // If editing a post, use PUT
+      url = "URL";
+      // url = `http://localhost:8080/feed/posts/${this.state.editPost._id}`;
+      // method = "PUT";
     }
 
     fetch(url, {
