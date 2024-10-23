@@ -1,64 +1,53 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 import Image from "../../../components/Image/Image";
 import "./SinglePost.css";
 
-class SinglePost extends Component {
-  // Initial state holds the details of the post to be fetched and displayed
-  state = {
+const SinglePost = () => {
+  const { postId } = useParams(); // Extract postId from the URL
+  const [post, setPost] = useState({
     title: "",
     author: "",
     date: "",
     image: "",
     content: "",
-  };
+  });
 
-  componentDidMount() {
-    // Extracting the postId from the URL params
-    const postId = this.props.match.params.postId;
-
-    // Fetching the single post data from the server using the postId
-    fetch(`https://your-api-url.com/posts/${postId}`) // Replace with your actual API URL
+  useEffect(() => {
+    fetch(`http://localhost:8080/feed/post/` + postId)
       .then((res) => {
-        // If the response status is not 200, an error is thrown
         if (res.status !== 200) {
           throw new Error("Failed to fetch status");
         }
-        return res.json(); // Converting the response to JSON
+        return res.json();
       })
       .then((resData) => {
-        // Once data is fetched, setting the state with the post details
-        this.setState({
+        setPost({
           title: resData.post.title,
           author: resData.post.creator.name,
-          date: new Date(resData.post.createdAt).toLocaleDateString("en-US"), // Formatting the date
-          image: resData.post.image, // Assuming the image URL is in the response
+          date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
+          image: "http://localhost:8080/" + resData.post.imageUrl,
           content: resData.post.content,
         });
       })
       .catch((err) => {
-        // If an error occurs during the fetch, it's logged to the console
         console.log(err);
       });
-  }
+  }, [postId]); // The useEffect runs whenever postId changes
 
-  render() {
-    // Rendering the post details: title, author, date, image, and content
-    return (
-      <section className="single-post">
-        <h1>{this.state.title}</h1> {/* Displaying the post title */}
-        <h2>
-          Created by {this.state.author} on {this.state.date}{" "}
-          {/* Displaying author and formatted date */}
-        </h2>
-        <div className="single-post__image">
-          {/* Displaying the post image using the custom Image component */}
-          <Image contain imageUrl={this.state.image} />
-        </div>
-        <p>{this.state.content}</p> {/* Displaying the post content */}
-      </section>
-    );
-  }
-}
+  return (
+    <section className="single-post">
+      <h1>{post.title}</h1>
+      <h2>
+        Created by {post.author} on {post.date}
+      </h2>
+      <div className="single-post__image">
+        <Image contain imageUrl={post.image} />
+      </div>
+      <p>{post.content}</p>
+    </section>
+  );
+};
 
 export default SinglePost;
