@@ -101,28 +101,26 @@ class Feed extends Component {
   };
 
   finishEditHandler = (postData) => {
-    this.setState({
-      editLoading: true,
-    });
+    this.setState({ editLoading: true });
 
-    let url = "http://localhost:8080/feed/posts";
+    const formData = new FormData();
+    formData.append("title", postData.title);
+    formData.append("content", postData.content);
+    if (postData.image) {
+      formData.append("image", postData.image);
+    }
+
+    let url = "http://localhost:8080/feed/post";
     let method = "POST"; // Default to creating a new post
 
     if (this.state.editPost) {
-      url = "URL";
-      // url = `http://localhost:8080/feed/posts/${this.state.editPost._id}`;
-      // method = "PUT";
+      url = `http://localhost:8080/feed/post/${this.state.editPost._id}`;
+      method = "PUT"; // If editing an existing post
     }
 
     fetch(url, {
       method: method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title: postData.title,
-        content: postData.content,
-      }),
+      body: formData,
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
@@ -137,6 +135,7 @@ class Feed extends Component {
           content: resData.post.content,
           creator: resData.post.creator,
           createdAt: resData.post.createdAt,
+          imageUrl: resData.post.imageUrl, // Ensuring correct image URL
         };
         this.setState((prevState) => {
           let updatedPosts = [...prevState.posts];
@@ -169,7 +168,7 @@ class Feed extends Component {
 
   deletePostHandler = (postId) => {
     this.setState({ postsLoading: true });
-    fetch(`http://localhost:8080/feed/posts/${postId}`, {
+    fetch(`http://localhost:8080/feed/post/${postId}`, {
       method: "DELETE",
     })
       .then((res) => {
@@ -217,7 +216,9 @@ class Feed extends Component {
               type="text"
               placeholder="Your status"
               control="input"
-              onChange={this.statusInputChangeHandler}
+              onChange={(event) =>
+                this.setState({ status: event.target.value })
+              }
               value={this.state.status}
             />
             <Button mode="flat" type="submit">
@@ -253,7 +254,7 @@ class Feed extends Component {
                   author={post.creator.name}
                   date={new Date(post.createdAt).toLocaleDateString("en-US")}
                   title={post.title}
-                  image={post.imagesUrl} // Fixing the image field
+                  image={post.imageUrl} // Correcting image URL reference
                   content={post.content}
                   onStartEdit={this.startEditPostHandler.bind(this, post._id)}
                   onDelete={this.deletePostHandler.bind(this, post._id)}
