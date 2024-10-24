@@ -99,6 +99,7 @@ class App extends Component {
   signupHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
+
     fetch("http://localhost:8080/auth/signup", {
       method: "POST",
       headers: {
@@ -111,29 +112,40 @@ class App extends Component {
       }),
     })
       .then((res) => {
+        // Log the full response for debugging
+        console.log("Server response:", res);
+
+        // Handle validation error (422) or other error codes
         if (res.status === 422) {
-          throw new Error(
-            "Validation failed. Make sure the email address isn't used yet!"
-          );
+          return res.json().then((data) => {
+            console.log("Validation errors:", data);
+            const error = new Error(
+              data.message ||
+                "Validation failed. Make sure the email address isn't used yet!"
+            );
+            throw error;
+          });
         }
         if (res.status !== 200 && res.status !== 201) {
-          console.log("Error!");
-          throw new Error("Creating a user failed!");
+          return res.json().then((data) => {
+            console.log("Error details:", data); // Log the error details from the server
+            throw new Error("Creating a user failed! Please try again.");
+          });
         }
-        return res.json();
+        return res.json(); // Parse the successful response as JSON
       })
       .then((resData) => {
-        console.log(resData);
+        console.log("User created successfully:", resData);
         this.setState({ isAuth: false, authLoading: false });
-        // Redirect to home page, can use history hook instead if needed
+        // Redirect to home page, can use history or navigate hook depending on your setup
         this.props.navigate("/");
       })
       .catch((err) => {
-        console.log(err);
+        console.error("Signup error:", err);
         this.setState({
           isAuth: false,
           authLoading: false,
-          error: err,
+          error: err.message || "Something went wrong! Please try again.",
         });
       });
   };
