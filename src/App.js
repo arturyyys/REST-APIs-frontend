@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from "react";
-import { Route, Routes, Navigate } from "react-router-dom"; // Updated imports
-import Layout from "./components/Layout/Layout";
+import { Route, Routes, Navigate } from "react-router-dom";
+import Layout from "./components/Layout/Layout"; // Use the Layout component
 import Backdrop from "./components/Backdrop/Backdrop";
 import Toolbar from "./components/Toolbar/Toolbar";
 import MainNavigation from "./components/Navigation/MainNavigation/MainNavigation";
@@ -58,7 +58,7 @@ class App extends Component {
   loginHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch("URL")
+    fetch("URL") // Replace "URL" with the actual login URL
       .then((res) => {
         if (res.status === 422) {
           throw new Error("Validation failed.");
@@ -79,7 +79,7 @@ class App extends Component {
         });
         localStorage.setItem("token", resData.token);
         localStorage.setItem("userId", resData.userId);
-        const remainingMilliseconds = 60 * 60 * 1000;
+        const remainingMilliseconds = 60 * 60 * 1000; // Example: 1 hour
         const expiryDate = new Date(
           new Date().getTime() + remainingMilliseconds
         );
@@ -209,35 +209,31 @@ class App extends Component {
     }
 
     return (
-      <Fragment>
-        {this.state.showBackdrop && (
-          <Backdrop onClick={this.backdropClickHandler} />
-        )}
-        <ErrorHandler error={this.state.error} onHandle={this.errorHandler} />
-        <Layout
-          header={
-            <Toolbar>
-              <MainNavigation
-                onOpenMobileNav={this.mobileNavHandler.bind(this, true)}
-                onLogout={this.logoutHandler}
-                isAuth={this.state.isAuth}
-              />
-            </Toolbar>
-          }
-          mobileNav={
-            <MobileNavigation
-              open={this.state.showMobileNav}
-              mobile
-              onChooseItem={this.mobileNavHandler.bind(this, false)}
+      <Layout>
+        <Fragment>
+          {this.state.showBackdrop && (
+            <Backdrop onClick={this.backdropClickHandler} />
+          )}
+          <ErrorHandler error={this.state.error} onHandle={this.errorHandler} />
+          <Toolbar>
+            <MainNavigation
+              onOpenMobileNav={this.mobileNavHandler.bind(this, true)}
               onLogout={this.logoutHandler}
               isAuth={this.state.isAuth}
             />
-          }
-        />
-        {routes}
-      </Fragment>
+          </Toolbar>
+          <MobileNavigation
+            open={this.state.showMobileNav}
+            mobile
+            onChooseItem={this.mobileNavHandler.bind(this, false)}
+            onLogout={this.logoutHandler}
+            isAuth={this.state.isAuth}
+          />
+          {routes}
+        </Fragment>
+      </Layout>
     );
   }
 }
 
-export default App; // Remove withRouter since it's no longer used
+export default App;
