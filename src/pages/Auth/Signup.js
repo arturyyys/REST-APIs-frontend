@@ -30,15 +30,13 @@ class Signup extends Component {
     error: null,
   };
 
-  // Handle input change
   inputChangeHandler = (input, value) => {
     this.setState((prevState) => {
       let isValid = true;
 
       // Validate input using defined validators
       for (const validator of prevState.signupForm[input].validators) {
-        const validationResult = validator(value);
-        isValid = isValid && validationResult;
+        isValid = isValid && validator(value);
       }
 
       // Update form state
@@ -65,9 +63,7 @@ class Signup extends Component {
     });
   };
 
-  // Handle input blur event
   inputBlurHandler = (input) => {
-    console.log(`Input blurred: ${input}`); // Debugging log
     this.setState((prevState) => ({
       signupForm: {
         ...prevState.signupForm,
@@ -79,9 +75,15 @@ class Signup extends Component {
     }));
   };
 
-  // Handle signup submission
   signupHandler = (event) => {
-    event.preventDefault(); // Prevent the default form submission
+    console.log("Signup handler invoked:", { event });
+
+    // Only prevent default if event is defined
+    if (event) {
+      event.preventDefault();
+    } else {
+      console.warn("Event is undefined!");
+    }
 
     if (!this.state.formIsValid) {
       this.setState({ error: "Please fill in the form correctly." });
@@ -90,34 +92,11 @@ class Signup extends Component {
 
     const { email, password, name } = this.state.signupForm;
 
-    fetch("http://localhost:8080/auth/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email.value,
-        password: password.value,
-        name: name.value,
-      }),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          return res.text().then((text) => {
-            throw new Error(text || "Request failed!");
-          });
-        }
-        return res.json();
-      })
-      .then((resData) => {
-        console.log("User created successfully:", resData);
-        this.setState({ error: null });
-        this.props.onSignup(); // Handle successful signup
-      })
-      .catch((err) => {
-        console.error("Signup error:", err);
-        this.setState({ error: err.message || "Something went wrong!" });
-      });
+    this.props.onSignup(event, {
+      email: email.value,
+      password: password.value,
+      name: name.value,
+    });
   };
 
   render() {
