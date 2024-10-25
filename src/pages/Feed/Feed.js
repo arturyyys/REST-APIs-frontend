@@ -41,8 +41,12 @@ class Feed extends Component {
       this.setState({ postPage: page });
     }
 
-    // Fetch posts from the backend
-    fetch(`http://localhost:8080/feed/posts?page=${page}`)
+    // Fetch posts from the backend with correct Authorization header
+    fetch(`http://localhost:8080/feed/posts?page=${page}`, {
+      headers: {
+        Authorization: `Bearer ${this.props.token}`, // Fixed concatenation issue
+      },
+    })
       .then((res) => {
         if (res.status !== 200) {
           throw new Error("Failed to fetch posts.");
@@ -71,6 +75,7 @@ class Feed extends Component {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${this.props.token}`, // Added authorization header
       },
       body: JSON.stringify({ status: this.state.status }),
     })
@@ -125,6 +130,9 @@ class Feed extends Component {
 
     fetch(url, {
       method: method,
+      headers: {
+        Authorization: `Bearer ${this.props.token}`, // Added authorization header for authenticated requests
+      },
       body: formData,
     })
       .then((res) => {
@@ -140,7 +148,7 @@ class Feed extends Component {
           content: resData.post.content,
           creator: resData.post.creator,
           createdAt: resData.post.createdAt,
-          imageUrl: resData.post.imageUrl, // Ensuring correct image URL
+          imageUrl: resData.post.imageUrl,
         };
         this.setState((prevState) => {
           let updatedPosts = [...prevState.posts];
@@ -175,6 +183,9 @@ class Feed extends Component {
     this.setState({ postsLoading: true });
     fetch(`http://localhost:8080/feed/post/${postId}`, {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${this.props.token}`, // Added authorization header
+      },
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
@@ -259,7 +270,7 @@ class Feed extends Component {
                   author={post.creator.name}
                   date={new Date(post.createdAt).toLocaleDateString("en-US")}
                   title={post.title}
-                  image={`http://localhost:8080/${post.imageUrl}`} // Correct URL for displaying images
+                  image={`http://localhost:8080/${post.imageUrl}`}
                   content={post.content}
                   onStartEdit={this.startEditPostHandler.bind(this, post._id)}
                   onDelete={this.deletePostHandler.bind(this, post._id)}
