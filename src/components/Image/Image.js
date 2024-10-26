@@ -1,5 +1,4 @@
 import React from "react";
-
 import "./Image.css";
 
 const image = (props) => (

@@ -270,7 +270,7 @@ class Feed extends Component {
                   author={post.creator?.name || "Unknown Author"}
                   date={new Date(post.createdAt).toLocaleDateString("en-US")}
                   title={post.title}
-                  image={`http://localhost:8080/${post.imageUrl}`}
+                  image={post.imageUrl} // No need to prepend with the base URL
                   content={post.content}
                   onStartEdit={this.startEditPostHandler.bind(this, post._id)}
                   onDelete={this.deletePostHandler.bind(this, post._id)}

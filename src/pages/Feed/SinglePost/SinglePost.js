@@ -16,7 +16,6 @@ const SinglePost = (props) => {
   const [error, setError] = useState(null); // State for handling errors
 
   useEffect(() => {
-    // Check if the token is available
     const token = props.token; // Make sure to pass down the token as a prop
 
     const fetchPost = async () => {
@@ -40,7 +39,7 @@ const SinglePost = (props) => {
           title: resData.post.title,
           author: resData.post.creator.name,
           date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
-          image: "http://localhost:8080/" + resData.post.imageUrl,
+          image: resData.post.imageUrl, // Make sure this uses the full URL
           content: resData.post.content,
         });
       } catch (err) {
@@ -50,12 +49,11 @@ const SinglePost = (props) => {
     };
 
     fetchPost();
-  }, [postId, props.token]); // Include token in dependencies to re-fetch if it changes
+  }, [postId, props.token]);
 
   return (
     <section className="single-post">
-      {error && <p className="error">{error}</p>}{" "}
-      {/* Display error message if exists */}
+      {error && <p className="error">{error}</p>}
       <h1>{post.title}</h1>
       <h2>
         Created by {post.author} on {post.date}
