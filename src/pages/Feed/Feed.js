@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from "react";
-
 import Post from "../../components/Feed/Post/Post";
 import Button from "../../components/Button/Button";
 import FeedEdit from "../../components/Feed/FeedEdit/FeedEdit";
@@ -41,10 +40,9 @@ class Feed extends Component {
       this.setState({ postPage: page });
     }
 
-    // Fetch posts from the backend with correct Authorization header
     fetch(`http://localhost:8080/feed/posts?page=${page}`, {
       headers: {
-        Authorization: `Bearer ${this.props.token}`, // Fixed concatenation issue
+        Authorization: `Bearer ${this.props.token}`,
       },
     })
       .then((res) => {
@@ -55,12 +53,10 @@ class Feed extends Component {
       })
       .then((resData) => {
         this.setState({
-          posts: resData.posts.map((post) => {
-            return {
-              ...post,
-              imagePath: post.imageUrl,
-            };
-          }),
+          posts: resData.posts.map((post) => ({
+            ...post,
+            imagePath: post.imageUrl,
+          })),
           totalPosts: resData.totalItems,
           postsLoading: false,
         });
@@ -211,7 +207,7 @@ class Feed extends Component {
   };
 
   catchError = (error) => {
-    console.error("Error caught:", error); // Logs the error
+    console.error("Error caught:", error);
     this.setState({ error: error.message || "Something went wrong!" });
   };
 
@@ -270,7 +266,7 @@ class Feed extends Component {
                   author={post.creator?.name || "Unknown Author"}
                   date={new Date(post.createdAt).toLocaleDateString("en-US")}
                   title={post.title}
-                  image={post.imageUrl} // No need to prepend with the base URL
+                  image={post.imageUrl}
                   content={post.content}
                   onStartEdit={this.startEditPostHandler.bind(this, post._id)}
                   onDelete={this.deletePostHandler.bind(this, post._id)}

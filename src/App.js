@@ -31,6 +31,11 @@ const App = () => {
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const expiryDate = localStorage.getItem("expiryDate");
+
+    // Debugging: Log retrieved values from localStorage
+    console.log("Token retrieved from localStorage:", storedToken);
+    console.log("Expiry date retrieved from localStorage:", expiryDate);
+
     if (!storedToken || !expiryDate) {
       return;
     }
@@ -84,14 +89,28 @@ const App = () => {
       }
 
       const resData = await response.json();
+
+      // Debugging: Log the response data
+      console.log("Login response data:", resData);
+
       setIsAuth(true);
       setToken(resData.token);
       setUserId(resData.userId);
+
+      // Store the token, userId, and expiryDate in localStorage
       localStorage.setItem("token", resData.token);
       localStorage.setItem("userId", resData.userId);
-
       const expiryDate = new Date(new Date().getTime() + 60 * 60 * 1000); // 1 hour
       localStorage.setItem("expiryDate", expiryDate.toISOString());
+
+      // Debugging: Log values after storing in localStorage
+      console.log("Token stored in localStorage:", resData.token);
+      console.log("User ID stored in localStorage:", resData.userId);
+      console.log(
+        "Expiry date stored in localStorage:",
+        expiryDate.toISOString()
+      );
+
       setAutoLogout(60 * 60 * 1000);
       navigate("/"); // Navigate to home after successful login
     } catch (err) {
@@ -123,7 +142,17 @@ const App = () => {
 
       const resData = await response.json();
       console.log("User created successfully:", resData);
+
+      // Store token and userId in localStorage after successful signup
       setIsAuth(true);
+      setToken(resData.token);
+      setUserId(resData.userId);
+      localStorage.setItem("token", resData.token);
+      localStorage.setItem("userId", resData.userId);
+      const expiryDate = new Date(new Date().getTime() + 60 * 60 * 1000); // 1 hour
+      localStorage.setItem("expiryDate", expiryDate.toISOString());
+
+      setAutoLogout(60 * 60 * 1000);
       navigate("/"); // Navigate to home after successful signup
     } catch (err) {
       console.error("Signup error:", err);
