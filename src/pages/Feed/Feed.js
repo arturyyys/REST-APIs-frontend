@@ -180,10 +180,13 @@ class Feed extends Component {
     fetch(`http://localhost:8080/feed/post/${postId}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${this.props.token}`, // Added authorization header
+        Authorization: `Bearer ${this.props.token}`,
       },
     })
       .then((res) => {
+        if (res.status === 403) {
+          throw new Error("You are not authorized to delete this post.");
+        }
         if (res.status !== 200 && res.status !== 201) {
           throw new Error("Deleting a post failed!");
         }
@@ -198,6 +201,7 @@ class Feed extends Component {
       })
       .catch((err) => {
         console.log(err);
+        alert(err.message); // Display an alert or use a UI notification
         this.setState({ postsLoading: false });
       });
   };
